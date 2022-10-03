@@ -33,6 +33,7 @@ module.exports = {
             filename: 'index.html'
         })
 
-    ]
+    ],
+    mode: "development"
 
 };
