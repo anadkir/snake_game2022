@@ -7,6 +7,7 @@ export class Snake{
         this.initialSize = initialSize
         this.cells = []
         this.direction = "right"
+        this.lastTime = 0
         this.init()
         this.initEvents()
     }
@@ -33,13 +34,41 @@ export class Snake{
             }
         })
     }
-    onFrame(event){
-        console.log(event)
-        for (let i = 0; i < this.cells.length; i++) {
+    onFrame(event) {
+        let currentTime = parseFloat(event.time);
+        let toMove = 30.0 * (currentTime - this.lastTime)
+        for (let i = this.cells.length-1; i > -1; --i) {
+            const powerImpulse = (this.cells.length - i) + toMove
             const item = this.cells[i]
-            item.position = item.position.add([1, 0])
-            if (view) return
+            if(!this.cells[i].counter) this.cells[i].counter = 0
+            if(!this.cells[i].impulse) this.cells[i].impulse = 'right'
+            this.cells[i].counter += toMove
+
+            if(this.cells[i].counter > powerImpulse && i === this.cells.length-1) {
+                this.cells[i].impulse = this.direction
+                this.cells[i].counter = 0
+            } else {
+                if(this.cells[i].counter > powerImpulse) {
+                    this.cells[i].impulse = this.cells[i+1].impulse
+                    this.cells[i].counter = 0
+                }
+            }
+            switch (this.cells[i].impulse) {
+                case "right":
+                    item.position = item.position.add([1, 0])
+                    break
+                case "left":
+                    item.position = item.position.add([-1, 0])
+                    break
+                case "up":
+                    item.position = item.position.add([0, -1])
+                    break
+                case "down":
+                    item.position = item.position.add([0, toMove])
+                    break
+            }
         }
+        this.lastTime = currentTime
     }
     _up() {
         if(this.direction === "down") return
